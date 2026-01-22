@@ -9,7 +9,7 @@
                     <h5 class="mb-0">Edit Pasien</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('patients.update', $patient) }}">
+                    <form method="POST" action="{{ route('patients.update', $patient) }}" id="editForm">
                         @csrf
                         @method('PUT')
 
@@ -36,10 +36,16 @@
                             <label for="no_telepon" class="form-label">No Telepon</label>
                             <input type="text" class="form-control @error('no_telepon') is-invalid @enderror" 
                                    id="no_telepon" name="no_telepon" 
-                                   value="{{ old('no_telepon', $patient->no_telepon) }}" required>
+                                   value="{{ old('no_telepon', $patient->no_telepon) }}" 
+                                   pattern="[0-9]{10,15}" 
+                                   maxlength="15" 
+                                   title="Nomor telepon harus 10-15 digit angka" 
+                                   required 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             @error('no_telepon')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Hanya angka, 10-15 digit</small>
                         </div>
 
                         <div class="mb-3">
@@ -61,7 +67,12 @@
 
                         <div class="d-flex justify-content-between">
                             <a href="{{ route('patients.index') }}" class="btn btn-secondary">Kembali</a>
-                            <button type="submit" class="btn btn-primary">Update</button>
+                            <span id="submitBtnWrapper" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                  title="Lakukan perubahan terlebih dahulu">
+                                <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                                    Update
+                                </button>
+                            </span>
                         </div>
                     </form>
                 </div>
@@ -69,4 +80,58 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    const submitBtn = $('#submitBtn');
+    const submitBtnWrapper = $('#submitBtnWrapper');
+    const form = $('#editForm');
+    const originalValues = {};
+    
+    const tooltip = new bootstrap.Tooltip(submitBtnWrapper[0], {
+        title: 'Lakukan perubahan terlebih dahulu',
+        placement: 'top'
+    });
+    
+    // Original values
+    form.find('input, textarea, select').each(function() {
+        const field = $(this);
+        originalValues[field.attr('name')] = field.val();
+    });
+    
+    // Check for changes
+    function checkChanges() {
+        let hasChanges = false;
+        
+        form.find('input, textarea, select').each(function() {
+            const field = $(this);
+            const fieldName = field.attr('name');
+            
+            if (fieldName && fieldName !== '_token' && fieldName !== '_method') {
+                if (field.val() !== originalValues[fieldName]) {
+                    hasChanges = true;
+                    return false;
+                }
+            }
+        });
+        
+        if (hasChanges) {
+            submitBtn.prop('disabled', false);
+            submitBtnWrapper.css('cursor', 'pointer');
+            tooltip.disable();
+        } else {
+            submitBtn.prop('disabled', true);
+            submitBtnWrapper.css('cursor', 'not-allowed');
+            tooltip.enable();
+        }
+    }
+    
+    // Listen to changes
+    form.find('input, textarea, select').on('input change', function() {
+        checkChanges();
+    });
+});
+</script>
+@endpush
 @endsection
