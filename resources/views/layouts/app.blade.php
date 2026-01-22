@@ -5,11 +5,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'Hospital Management') }}</title>
-        
-        <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         
         @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+        
+        <!-- jQuery CDN as fallback -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         
         <style>
             .navbar {
@@ -116,7 +117,6 @@
                 margin: 0 2px;
             }
             
-            /* Toast Container */
             .toast-container {
                 position: fixed;
                 top: 80px;
@@ -127,6 +127,15 @@
             .toast {
                 min-width: 300px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            
+            .toast .toast-body {
+                padding: 1rem;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
             }
             
             .toast-header {
@@ -195,26 +204,19 @@
         </nav>
         @endauth
 
-        <!-- Toast Container -->
         <div class="toast-container">
             @if(session('success'))
             <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
-                <div class="d-flex">
-                    <div class="toast-body bg-success text-white rounded">
-                        <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <div class="toast-body bg-success text-white rounded">
+                    <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
                 </div>
             </div>
             @endif
             
             @if(session('error'))
             <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
-                <div class="d-flex">
-                    <div class="toast-body bg-danger text-white rounded">
-                        <i class="bi bi-x-circle-fill me-2"></i>{{ session('error') }}
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <div class="toast-body bg-danger text-white rounded">
+                    <i class="bi bi-x-circle-fill me-2"></i>{{ session('error') }}
                 </div>
             </div>
             @endif
@@ -224,16 +226,54 @@
             @yield('content')
         </main>
 
+        <script>
+            // Setup CSRF Token for AJAX
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+        </script>
+
         @stack('scripts')
         
         <script>
-            // Auto show and hide toasts
+            window.showToast = function(message, type = 'success') {
+                const toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) return;
+                
+                const icon = type === 'success' ? 'check-circle-fill' : 'x-circle-fill';
+                const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+                
+                const toastHtml = `
+                    <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-body ${bgClass} text-white rounded">
+                            <i class="bi bi-${icon} me-2"></i>${message}
+                        </div>
+                    </div>
+                `;
+                
+                toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+                
+                const toastElement = toastContainer.lastElementChild;
+                const toast = new bootstrap.Toast(toastElement, {
+                    autohide: true,
+                    delay: 5000
+                });
+                
+                toast.show();
+                
+                toastElement.addEventListener('hidden.bs.toast', function() {
+                    toastElement.remove();
+                });
+            };
+            
             document.addEventListener('DOMContentLoaded', function() {
                 const toastElList = [].slice.call(document.querySelectorAll('.toast'));
                 const toastList = toastElList.map(function(toastEl) {
                     return new bootstrap.Toast(toastEl, {
                         autohide: true,
-                        delay: 5000 // 5 seconds
+                        delay: 5000 
                     });
                 });
                 
