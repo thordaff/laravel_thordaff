@@ -40,7 +40,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'nama_pasien' => 'required|string|max:255',
             'alamat' => 'required|string',
-            'no_telepon' => 'required|string|max:20',
+            'no_telepon' => 'required|numeric|digits_between:10,15',
             'hospital_id' => 'required|exists:hospitals,id',
         ]);
 
@@ -67,7 +67,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'nama_pasien' => 'required|string|max:255',
             'alamat' => 'required|string',
-            'no_telepon' => 'required|string|max:20',
+            'no_telepon' => 'required|numeric|digits_between:10,15',
             'hospital_id' => 'required|exists:hospitals,id',
         ]);
 

@@ -53,10 +53,16 @@
                             </label>
                             <input type="text" class="form-control @error('no_telepon') is-invalid @enderror" 
                                    id="no_telepon" name="no_telepon" value="{{ old('no_telepon') }}" 
-                                   placeholder="08XXXXXXXXXX" required>
+                                   placeholder="08XXXXXXXXXX" 
+                                   pattern="[0-9]{10,15}" 
+                                   maxlength="15" 
+                                   title="Nomor telepon harus 10-15 digit angka" 
+                                   required 
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             @error('no_telepon')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Hanya angka, 10-15 digit</small>
                         </div>
 
                         <div class="mb-4">

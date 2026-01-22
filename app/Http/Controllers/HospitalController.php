@@ -24,7 +24,7 @@ class HospitalController extends Controller
             'nama_rumah_sakit' => 'required|string|max:255',
             'alamat' => 'required|string',
             'email' => 'required|email|unique:hospitals,email',
-            'telepon' => 'required|string|max:20',
+            'telepon' => 'required|numeric|digits_between:10,15',
         ]);
 
         Hospital::create($validated);
@@ -49,7 +49,7 @@ class HospitalController extends Controller
             'nama_rumah_sakit' => 'required|string|max:255',
             'alamat' => 'required|string',
             'email' => 'required|email|unique:hospitals,email,' . $hospital->id,
-            'telepon' => 'required|string|max:20',
+            'telepon' => 'required|numeric|digits_between:10,15',
         ]);
 
         $hospital->update($validated);
