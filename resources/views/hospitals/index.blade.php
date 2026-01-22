@@ -2,52 +2,70 @@
 
 @section('content')
 <div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="fw-bold text-dark"><i class="bi bi-hospital me-2"></i>Data Rumah Sakit</h2>
+            <p class="text-muted">Kelola data rumah sakit</p>
+        </div>
+    </div>
+    
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Data Rumah Sakit</h5>
-                    <a href="{{ route('hospitals.create') }}" class="btn btn-primary">
-                        <i class="bi bi-plus"></i> Tambah Rumah Sakit
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0"><i class="bi bi-list-ul me-2"></i>Daftar Rumah Sakit</h5>
+                    <a href="{{ route('hospitals.create') }}" class="btn btn-light btn-sm">
+                        <i class="bi bi-plus-circle"></i> Tambah Baru
                     </a>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
+                        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     @endif
 
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>No</th>
-                                    <th>Nama Rumah Sakit</th>
-                                    <th>Alamat</th>
-                                    <th>Email</th>
-                                    <th>Telepon</th>
-                                    <th>Aksi</th>
+                                    <th class="text-center" width="50">No</th>
+                                    <th><i class="bi bi-hospital me-1"></i>Nama Rumah Sakit</th>
+                                    <th><i class="bi bi-geo-alt me-1"></i>Alamat</th>
+                                    <th><i class="bi bi-envelope me-1"></i>Email</th>
+                                    <th><i class="bi bi-telephone me-1"></i>Telepon</th>
+                                    <th class="text-center" width="250">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($hospitals as $index => $hospital)
                                 <tr id="hospital-{{ $hospital->id }}">
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $hospital->nama_rumah_sakit }}</td>
-                                    <td>{{ $hospital->alamat }}</td>
-                                    <td>{{ $hospital->email }}</td>
-                                    <td>{{ $hospital->telepon }}</td>
-                                    <td>
-                                        <a href="{{ route('hospitals.show', $hospital) }}" class="btn btn-info btn-sm">Detail</a>
-                                        <a href="{{ route('hospitals.edit', $hospital) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="{{ $hospital->id }}">Hapus</button>
+                                    <td class="text-center fw-bold">{{ $index + 1 }}</td>
+                                    <td class="fw-semibold">{{ $hospital->nama_rumah_sakit }}</td>
+                                    <td class="text-muted">{{ $hospital->alamat }}</td>
+                                    <td><a href="mailto:{{ $hospital->email }}" class="text-decoration-none">{{ $hospital->email }}</a></td>
+                                    <td><a href="tel:{{ $hospital->telepon }}" class="text-decoration-none">{{ $hospital->telepon }}</a></td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('hospitals.show', $hospital) }}" class="btn btn-sm btn-outline-info" title="Detail">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="{{ route('hospitals.edit', $hospital) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete" data-id="{{ $hospital->id }}" title="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Tidak ada data</td>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                                        <p class="mb-0">Belum ada data rumah sakit</p>
+                                    </td>
                                 </tr>
                                 @endforelse
                             </tbody>
