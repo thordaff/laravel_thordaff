@@ -81,12 +81,14 @@ $(document).ready(function() {
                 type: 'DELETE',
                 success: function(response) {
                     if(response.success) {
-                        alert(response.message);
-                        window.location.href = '/hospitals';
+                        showToast(response.message, 'success');
+                        setTimeout(function() {
+                            window.location.href = '/hospitals';
+                        }, 1000);
                     }
                 },
                 error: function(xhr) {
-                    alert('Terjadi kesalahan saat menghapus data');
+                    showToast('Terjadi kesalahan saat menghapus data', 'error');
                 }
             });
         }

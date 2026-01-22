@@ -115,6 +115,29 @@
             .btn-group .btn {
                 margin: 0 2px;
             }
+            
+            /* Toast Container */
+            .toast-container {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                z-index: 9999;
+            }
+            
+            .toast {
+                min-width: 300px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            }
+            
+            .toast-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+            }
+            
+            .toast-header .btn-close {
+                filter: brightness(0) invert(1);
+            }
         </style>
     </head>
     <body>
@@ -172,10 +195,50 @@
         </nav>
         @endauth
 
+        <!-- Toast Container -->
+        <div class="toast-container">
+            @if(session('success'))
+            <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+                <div class="d-flex">
+                    <div class="toast-body bg-success text-white rounded">
+                        <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            @endif
+            
+            @if(session('error'))
+            <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" id="errorToast">
+                <div class="d-flex">
+                    <div class="toast-body bg-danger text-white rounded">
+                        <i class="bi bi-x-circle-fill me-2"></i>{{ session('error') }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            @endif
+        </div>
+
         <main class="py-4">
             @yield('content')
         </main>
 
         @stack('scripts')
+        
+        <script>
+            // Auto show and hide toasts
+            document.addEventListener('DOMContentLoaded', function() {
+                const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+                const toastList = toastElList.map(function(toastEl) {
+                    return new bootstrap.Toast(toastEl, {
+                        autohide: true,
+                        delay: 5000 // 5 seconds
+                    });
+                });
+                
+                toastList.forEach(toast => toast.show());
+            });
+        </script>
     </body>
 </html>
