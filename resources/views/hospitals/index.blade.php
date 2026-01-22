@@ -69,28 +69,87 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Konfirmasi Hapus
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash display-1 text-danger mb-3"></i>
+                <h5>Apakah Anda yakin ingin menghapus data ini?</h5>
+                <p class="text-muted mb-0">Data yang dihapus tidak dapat dikembalikan.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Batal
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="bi bi-trash me-1"></i>Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+let deleteHospitalId = null;
+let deleteModal = null;
+
 $(document).ready(function() {
-    $('.btn-delete').click(function() {
-        const hospitalId = $(this).data('id');
-        
-        if(confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+    console.log('Hospital index script loaded');
+    
+    deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    
+    $(document).on('click', '.btn-delete', function(e) {
+        e.preventDefault();
+        deleteHospitalId = $(this).data('id');
+        console.log('Delete button clicked for hospital ID:', deleteHospitalId);
+        deleteModal.show();
+    });
+    
+    // Handle confirm delete
+    $('#confirmDelete').click(function() {
+        if(deleteHospitalId) {
+            console.log('User confirmed delete for ID:', deleteHospitalId);
             $.ajax({
-                url: '/hospitals/' + hospitalId,
+                url: '/hospitals/' + deleteHospitalId,
                 type: 'DELETE',
+                dataType: 'json',
                 success: function(response) {
+                    console.log('Delete response:', response);
+                    deleteModal.hide();
+                    
                     if(response.success) {
-                        $('#hospital-' + hospitalId).fadeOut(300, function() {
+                        $('#hospital-' + deleteHospitalId).fadeOut(300, function() {
                             $(this).remove();
                         });
-                        showToast(response.message, 'success');
+                        
+                        if (typeof showToast === 'function') {
+                            showToast(response.message, 'success');
+                        } else {
+                            alert(response.message);
+                        }
                     }
+                    deleteHospitalId = null;
                 },
-                error: function(xhr) {
-                    showToast('Terjadi kesalahan saat menghapus data', 'error');
+                error: function(xhr, status, error) {
+                    console.error('Delete error:', {xhr: xhr, status: status, error: error});
+                    deleteModal.hide();
+                    
+                    if (typeof showToast === 'function') {
+                        showToast('Terjadi kesalahan saat menghapus data', 'error');
+                    } else {
+                        alert('Terjadi kesalahan saat menghapus data');
+                    }
+                    deleteHospitalId = null;
                 }
             });
         }

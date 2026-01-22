@@ -52,31 +52,69 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white border-0">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Konfirmasi Hapus
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-trash display-1 text-danger mb-3"></i>
+                <h5>Apakah Anda yakin ingin menghapus data ini?</h5>
+                <p class="text-muted mb-0">Data yang dihapus tidak dapat dikembalikan.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Batal
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="bi bi-trash me-1"></i>Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+let deleteModal = null;
+const patientId = {{ $patient->id }};
+
 $(document).ready(function() {
+    deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    
     $('.btn-delete').click(function() {
-        const patientId = $(this).data('id');
-        
-        if(confirm('Apakah Anda yakin ingin menghapus data ini?')) {
-            $.ajax({
-                url: '/patients/' + patientId,
-                type: 'DELETE',
-                success: function(response) {
-                    if(response.success) {
+        deleteModal.show();
+    });
+    
+    $('#confirmDelete').click(function() {
+        $.ajax({
+            url: '/patients/' + patientId,
+            type: 'DELETE',
+            success: function(response) {
+                deleteModal.hide();
+                if(response.success) {
+                    if (typeof showToast === 'function') {
                         showToast(response.message, 'success');
-                        setTimeout(function() {
-                            window.location.href = '/patients';
-                        }, 1000);
                     }
-                },
-                error: function(xhr) {
+                    setTimeout(function() {
+                        window.location.href = '/patients';
+                    }, 1000);
+                }
+            },
+            error: function(xhr) {
+                deleteModal.hide();
+                if (typeof showToast === 'function') {
                     showToast('Terjadi kesalahan saat menghapus data', 'error');
                 }
-            });
-        }
+            }
+        });
     });
 });
 </script>
