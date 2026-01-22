@@ -13,7 +13,7 @@ class PatientController extends Controller
         $hospitals = Hospital::all();
         $query = Patient::with('hospital');
 
-        if ($request->ajax() && $request->has('hospital_id')) {
+        if ($request->ajax() && $request->has('hospital_id') && $request->hospital_id != '') {
             $query->where('hospital_id', $request->hospital_id);
         }
 
